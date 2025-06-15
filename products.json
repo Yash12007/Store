@@ -1,0 +1,11 @@
+[
+    {
+        "Name":"Sera Antivirus: Smart Protection",
+        "Description":"It provides a security shield to remove all viruses, malware, trojans, and other harmful software and applications from your device, and also offers storage management and Utilities services.",
+        "Image":["https://www.yash12007.com/Sera/Sera.png", "https://www.yash12007.com/Sera/splashscreen.png", "https://www.yash12007.com/Sera/window.png"],
+        "PPF":"https://www.yash12007.com/Sera/#subscribe",
+        "DN":"https://github.com/Yash12007/Sera/releases/download/v1.0-update/Sera.Antivirus.exe",
+        "ID":"d92b20e4-b438-43a1-aba3-1886f3e92bad",
+        "instock":"yes"
+    }
+]
