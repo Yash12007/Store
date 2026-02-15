@@ -7,6 +7,14 @@
         "DN":"https://github.com/Yash12007/Sera/releases/download/v2.5/Sera_Antivirus.exe",
         "ID":"d92b20e4-b438-43a1-aba3-1886f3e92bad",
         "instock":"yes"
+    },
+    {
+        "Name":"Metrica - Performance Analytics",
+        "Description":"Metrica is a modern, lightweight, and fully offline performance-analysing utility for Windows, designed to give you clear, visual insights into your system’s CPU and memory usage — without clutter, bloat, or distractions. Built with a clean UI and focused on usability, Metrica makes system monitoring feel intuitive, fast, and actually enjoyable.",
+        "Image":["https://www.yash12007.com/metrica/Metrica.png", "https://www.yash12007.com/metrica/Assets/List%20Installed%20Applications.png", "https://www.yash12007.com/metrica/Assets/LeftView.png", "https://www.yash12007.com/metrica/Assets/RightView.png", "https://www.yash12007.com/metrica/Assets/Find%20users.png", "https://www.yash12007.com/metrica/Assets/Process%20Manager.png"],
+        "PPF":"https://yash12007.itch.io/metrica/purchase",
+        "DN":"https://yash12007.itch.io/metrica",
+        "ID":"metrica",
+        "instock":"yes"
     }
-
 ]
