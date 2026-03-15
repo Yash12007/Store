@@ -42,6 +42,46 @@
     <script src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
     <meta name="author" content="Yash12007">
     <style>.hero,.hero *,section{padding:0;margin:0}#section,#viewer,footer{height:fit-content;padding:8px;width:100%}#PP,#section,#viewer,.cards a,footer{padding:8px}#PPDL,#PPL,.cards a,a,footer a{text-decoration:none}#PP,.hero,.social:hover,a,body,footer,footer a,section{color:#fff}#section,#viewer,.cards img,.hero,body,footer,section{width:100%}body{background:#000!important;height:720px;overflow:hidden;overflow-y:auto;font-family:calibri;margin:0;scroll-behavior:smooth}a{background:0 0;border:none;margin:5px}.hero{background:#000;min-height:fit-content}section{height:50px;font-size:25px;font-weight:500;display:flex;place-items:center;justify-content:start}::-webkit-scrollbar{width:0;height:0;background:0 0}::-webkit-scrollbar-thumb{width:0;height:0;background:0 0}#section,.cards,.social:hover,footer{background:#000}#section{display:block;border-top:2px solid #fff}.cards{width:200px;min-width:200px;aspect-ratio:1/2;border:1px solid #fff;border-radius:10px;margin:10px;box-shadow:inset 0 0 5px #ccc;padding:10px;display:grid}#viewer,.cards a,.social{display:flex;place-items:center}#viewer{overflow:auto;justify-content:start;background:#222}.cards img{min-width:100%;max-width:100%;aspect-ratio:1;border-radius:10px}.cards p{color:#ccc;font-size:8px}.cards a{background:#0ff;color:#000;font-size:14px;height:30px;font-weight:500;width:80%;border-radius:10px;margin:0;justify-content:space-between}footer{border-top:1px solid #fff}footer a{font-size:.5rem}#PP{background:#0007;backdrop-filter:blur(10px);width:300px;height:100%;position:fixed;top:0;left:0;z-index:1;overflow-y:auto}#PPDL,#PPL,.social{color:#000;background:#fff}#PPDL,#PPL{border-radius:5px}.social{justify-content:center;border-radius:50%;box-shadow:0 0 2px #fff;height:30px;width:30px;margin:5px;transition:.3s}#PPI{max-width:300px}#carouselExampleDark{width:100%;height:300px}</style>
+    <style>
+      #EmailCollector{
+        position: fixed;
+        top: 16vh;
+        height: fit-content;
+        width: fit-content;
+        margin: auto;
+        left: 10vw;
+        background: #fff;
+        backdrop-filter: blur(10px);
+        border-radius: 1rem;
+        border: 1px solid #ccc;
+        box-shadow: 0 0 10px 5px #2223;
+        display: none;
+        flex-direction: column;
+        place-items: center;
+        justify-content: start;
+        gap: 30px;
+        padding: 20px;
+        color: #000;
+        z-index: 10000;
+      }#EmailCollector form{
+        display: flex;
+        place-items: center;
+        justify-content: center;
+        flex-direction: column;
+        gap: 10px;
+      }form input{
+        width: 250px;
+        height: 40px;
+        display: flex;
+        place-items: start;
+        font-size: 14px;
+        justify-content: start;
+        padding: 10px 20px;
+        border-radius: 1rem;
+        background: #fff3;
+        border: 1px solid #000;
+      }
+    </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
 </head>
 <body data-bs-theme="dark">
@@ -174,9 +214,24 @@
                     <a id="PPDL" class="btn" download><i><b>Download</b></i></a>
                     <a id="PPL" class="btn"><i><b>Purchase</b></i></a>
                 </div>
+                <button onclick="review()" class="btn" style="width: 80%; border-radius: 1rem; color: #ff0; border: 1px solid #fff; margin-left: 10px;">Review</button>
             </div>
         </div>
     </div>
+    <div id="EmailCollector">
+      <div>
+        <b>Share your experience</b>
+        <p style="font-size: 8px;">Your feedback is helpful to us</p>
+      </div>
+      <img src="https://yash12007.com/192x192.png" width="120px" height="120px" alt="Yash12007 | Logo" style="box-shadow: 0 0 5px #222; border-radius: 50%;">
+      <form id="reviewCollector">
+        <label for="email" style="display: flex; place-items: start; justify-content: start; width: 230px;">Email ID</label>
+        <input placeholder="user@example.com" type="email" name="email" id="email" required autocomplete="email">
+        <button type="submit" style="width: 250px; border-radius: 1rem; font-size: 12px; padding: 10px; background: linear-gradient(120deg, #a0f, #0df); border: none;">Continue</button>
+        <button onclick="document.getElementById('EmailCollector').style.display='none'" type="reset" style="width: 250px; border-radius: 1rem; font-size: 12px; padding: 10px; background: #222; border: none;">Cancel</button>
+      </form>
+    </div>
+    <script src="https://apis.google.com/js/platform.js?onload=renderOptIn" async defer></script>
     <script id='merchantWidgetScript' src="https://www.gstatic.com/shopping/merchant/merchantwidget.js" defer></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
     <script>
@@ -207,6 +262,32 @@
                 return [];
             }
         }
+        function review(){
+          document.getElementById("EmailCollector").style.display='flex';
+        }
+        document.getElementById("reviewCollector").addEventListener("submit", (e)=>{
+          e.preventDefault();
+          const email = document.getElementById("email").value;
+          getCustomerReviews(email);
+        });
+        function getCustomerReviews(email){
+          let country = "";
+          let id = Date.now().toString(36) + Math.random().toString(36).slice(2);
+          let estimated_date = new Date(Date.now() + 5*86400000).toISOString().slice(0,10);
+          fetch("https://ipapi.co/country/").then(r=>r.text()).then(c=>country = c);
+          window.renderOptIn = function() {
+            window.gapi.load('surveyoptin', function() {
+              window.gapi.surveyoptin.render(
+                {
+                  "merchant_id": 5587645429,
+                  "order_id": id,
+                  "email": email,
+                  "delivery_country": country,
+                  "estimated_delivery_date":  estimated_date,
+                });
+            });
+          }
+        }
         document.addEventListener("DOMContentLoaded", async () => {
             const productViewer = document.getElementById("viewer");
             if (!productViewer) {
@@ -236,6 +317,7 @@
                 fragment.appendChild(card);
             });
             productViewer.appendChild(fragment);
+            
         });
         function openProductPurchase(product) {
             let stockval = "";
