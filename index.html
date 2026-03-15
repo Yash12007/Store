@@ -276,7 +276,7 @@
           let id = Date.now().toString(36) + Math.random().toString(36).slice(2);
           let estimated_date = new Date(Date.now() + 5 * 86400000).toISOString().slice(0,10);
           try {
-            const response = await fetch("https://ipapi.co/country/");
+            const response = await fetch("https://ipinfo.io/country");
             if (!response.ok) {
               const errorText = await response.text();
               throw new Error(`Failed to fetch country: ${response.status} ${response.statusText} - ${errorText}`);
