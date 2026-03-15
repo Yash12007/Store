@@ -282,7 +282,7 @@
               throw new Error(`Failed to fetch country: ${response.status} ${response.statusText} - ${errorText}`);
             }
             ctr = await response.text();
-            country = cry.replace("\n", "");
+            country = ctr.replace("\n", "");
           } catch (error) {
             console.error("Error fetching country:", error);
             country = "US"; 
