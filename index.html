@@ -38,7 +38,7 @@
     <meta http-equiv="Expires" content="0">
     
     <link rel="me" href="https://x.com/_Yash12007_">
-    
+    <meta name="robots" content="index, follow">
     <script src="//widget.trustpilot.com/bootstrap/v5/tp.widget.bootstrap.min.js" async></script>
     <meta name="author" content="Yash12007">
     <style>.hero,.hero *,section{padding:0;margin:0}#section,#viewer,footer{height:fit-content;padding:8px;width:100%}#PP,#section,#viewer,.cards a,footer{padding:8px}#PPDL,#PPL,.cards a,a,footer a{text-decoration:none}#PP,.hero,.social:hover,a,body,footer,footer a,section{color:#fff}#section,#viewer,.cards img,.hero,body,footer,section{width:100%}body{background:#000!important;height:720px;overflow:hidden;overflow-y:auto;font-family:calibri;margin:0;scroll-behavior:smooth}a{background:0 0;border:none;margin:5px}.hero{background:#000;min-height:fit-content}section{height:50px;font-size:25px;font-weight:500;display:flex;place-items:center;justify-content:start}::-webkit-scrollbar{width:0;height:0;background:0 0}::-webkit-scrollbar-thumb{width:0;height:0;background:0 0}#section,.cards,.social:hover,footer{background:#000}#section{display:block;border-top:2px solid #fff}.cards{width:200px;min-width:200px;aspect-ratio:1/2;border:1px solid #fff;border-radius:10px;margin:10px;box-shadow:inset 0 0 5px #ccc;padding:10px;display:grid}#viewer,.cards a,.social{display:flex;place-items:center}#viewer{overflow:auto;justify-content:start;background:#222}.cards img{min-width:100%;max-width:100%;aspect-ratio:1;border-radius:10px}.cards p{color:#ccc;font-size:8px}.cards a{background:#0ff;color:#000;font-size:14px;height:30px;font-weight:500;width:80%;border-radius:10px;margin:0;justify-content:space-between}footer{border-top:1px solid #fff}footer a{font-size:.5rem}#PP{background:#0007;backdrop-filter:blur(10px);width:300px;height:100%;position:fixed;top:0;left:0;z-index:1;overflow-y:auto}#PPDL,#PPL,.social{color:#000;background:#fff}#PPDL,#PPL{border-radius:5px}.social{justify-content:center;border-radius:50%;box-shadow:0 0 2px #fff;height:30px;width:30px;margin:5px;transition:.3s}#PPI{max-width:300px}#carouselExampleDark{width:100%;height:300px}</style>
@@ -79,6 +79,7 @@
         padding: 10px 20px;
         border-radius: 1rem;
         background: #fff3;
+        color: #000;
         border: 1px solid #000;
       }
     </style>
@@ -270,22 +271,34 @@
           const email = document.getElementById("email").value;
           getCustomerReviews(email);
         });
-        function getCustomerReviews(email){
+        async function getCustomerReviews(email){
           let country = "";
           let id = Date.now().toString(36) + Math.random().toString(36).slice(2);
-          let estimated_date = new Date(Date.now() + 5*86400000).toISOString().slice(0,10);
-          fetch("https://ipapi.co/country/").then(r=>r.text()).then(c=>country = c);
-          window.renderOptIn = function() {
-            window.gapi.load('surveyoptin', function() {
-              window.gapi.surveyoptin.render(
-                {
-                  "merchant_id": 5587645429,
-                  "order_id": id,
-                  "email": email,
-                  "delivery_country": country,
-                  "estimated_delivery_date":  estimated_date,
-                });
-            });
+          let estimated_date = new Date(Date.now() + 5 * 86400000).toISOString().slice(0,10);
+          try {
+            const response = await fetch("https://ipapi.co/country/");
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Failed to fetch country: ${response.status} ${response.statusText} - ${errorText}`);
+            }
+            country = await response.text();
+          } catch (error) {
+            console.error("Error fetching country:", error);
+            country = "US"; 
+          } finally {
+              window.renderOptIn = function() {
+                  window.gapi.load('surveyoptin', function() {
+                    window.gapi.surveyoptin.render(
+                      {
+                        "merchant_id": 5587645429,
+                        "order_id": id,
+                        "email": email,
+                        "delivery_country": country,
+                        "estimated_delivery_date":  estimated_date,
+                      });
+                  });
+                }
+              window.renderOptIn();
           }
         }
         document.addEventListener("DOMContentLoaded", async () => {
