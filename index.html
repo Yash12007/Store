@@ -281,7 +281,7 @@
               const errorText = await response.text();
               throw new Error(`Failed to fetch country: ${response.status} ${response.statusText} - ${errorText}`);
             }
-            country = await response.text();
+            country = await response.text().replace("\n", "");
           } catch (error) {
             console.error("Error fetching country:", error);
             country = "US"; 
