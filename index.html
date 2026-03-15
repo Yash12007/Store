@@ -272,7 +272,7 @@
           getCustomerReviews(email);
         });
         async function getCustomerReviews(email){
-          let country = "";
+          let country, ctr;
           let id = Date.now().toString(36) + Math.random().toString(36).slice(2);
           let estimated_date = new Date(Date.now() + 5 * 86400000).toISOString().slice(0,10);
           try {
@@ -281,7 +281,8 @@
               const errorText = await response.text();
               throw new Error(`Failed to fetch country: ${response.status} ${response.statusText} - ${errorText}`);
             }
-            country = await response.text().replace("\n", "");
+            ctr = await response.text();
+            country = cry.replace("\n", "");
           } catch (error) {
             console.error("Error fetching country:", error);
             country = "US"; 
