@@ -1,5 +1,14 @@
 [
     {
+        "Name":"SERA 3.0",
+        "Description":"It provides a security shield to remove all viruses, malware, trojans, and other harmful software and applications from your device, and also offers storage management and Utilities services.",
+        "Image":["https://www.yash12007.com/Sera/Sera.png", "https://www.yash12007.com/Sera/Assets/v3/splashscreen.png", "https://www.yash12007.com/Sera/Assets/v3/welcome.png", "https://www.yash12007.com/Sera/Assets/v3/auth.png", "https://www.yash12007.com/Sera/Assets/v3/main.png"],
+        "PPF":"https://www.yash12007.com/Sera/#subscribe",
+        "DN":"https://github.com/Yash12007/Sera/releases/download/v3.0/SERA_ANTIVIRUS_3.0.exe",
+        "ID":"shopify_ZZ_7956653703225_44654543241273",
+        "instock":"yes"
+    },
+    {
         "Name":"Sera Antivirus: Smart Protection",
         "Description":"It provides a security shield to remove all viruses, malware, trojans, and other harmful software and applications from your device, and also offers storage management and Utilities services.",
         "Image":["https://www.yash12007.com/Sera/Sera.png", "https://raw.githubusercontent.com/Yash12007/Sera/refs/heads/main/Assets/Splashscreen.png", "https://raw.githubusercontent.com/Yash12007/Sera/refs/heads/main/Assets/Welcome.png", "https://raw.githubusercontent.com/Yash12007/Sera/refs/heads/main/Assets/Signup.png", "https://raw.githubusercontent.com/Yash12007/Sera/refs/heads/main/Assets/mainScreen.png"],
