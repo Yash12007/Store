@@ -8,6 +8,8 @@
         "ID":"shopify_ZZ_8240335716409_45730192195641",
         "instock":"yes",
         "price": "$30.00",
+        "size": "69.8 MB",
+        "qc": "Passed Verified Check",
         "YoutubeID": "TQoubmHRD1s",
         "Publisher": {
             "Name": "Yash12007",
@@ -24,6 +26,8 @@
         "ID":"shopify_ZZ_8213786886201_45623652679737",
         "instock":"yes",
         "price": "$4.99",
+        "size": "163 MB",
+        "qc": "Passed Verified Check",
         "YoutubeID": "3zxkm7eYEog",
         "Publisher": {
             "Name": "Yash12007",
@@ -39,7 +43,9 @@
         "DN":"https://yash12007.gumroad.com/l/nova-workspace",
         "ID":"nova-workspace",
         "instock":"yes",
+        "size": "8.4 MB",
         "price": "$12.00",
+        "qc": "Passed Verified Check",
         "Publisher": {
             "Name": "Yash12007",
             "Email": "info@yash12007.com",
