@@ -6,7 +6,14 @@
         "PPF":"https://www.yash12007.com/Sera/#subscribe",
         "DN":"https://github.com/Yash12007/Sera/releases/download/v3.0/SERA_ANTIVIRUS_3.0.exe",
         "ID":"shopify_ZZ_8240335716409_45730192195641",
-        "instock":"yes"
+        "instock":"yes",
+        "price": "$30.00",
+        "YoutubeID": "TQoubmHRD1s",
+        "Publisher": {
+            "Name": "Yash12007",
+            "Email": "info@yash12007.com",
+            "avatar": "https://www.yash12007.com/192x192.png"
+        }
     },
     {
         "Name":"Metrica - Performance Analytics",
@@ -15,7 +22,14 @@
         "PPF":"https://yash12007.itch.io/metrica/purchase",
         "DN":"https://yash12007.itch.io/metrica",
         "ID":"shopify_ZZ_8213786886201_45623652679737",
-        "instock":"yes"
+        "instock":"yes",
+        "price": "$4.99",
+        "YoutubeID": "3zxkm7eYEog",
+        "Publisher": {
+            "Name": "Yash12007",
+            "Email": "info@yash12007.com",
+            "avatar": "https://www.yash12007.com/192x192.png"
+        }
     },
     {
         "Name":"Nova Workspace – Futuristic 3D Scene Pack",
@@ -24,6 +38,12 @@
         "PPF":"https://gumroad.com/checkout",
         "DN":"https://yash12007.gumroad.com/l/nova-workspace",
         "ID":"nova-workspace",
-        "instock":"yes"
+        "instock":"yes",
+        "price": "$12.00",
+        "Publisher": {
+            "Name": "Yash12007",
+            "Email": "info@yash12007.com",
+            "avatar": "https://www.yash12007.com/192x192.png"
+        }
     }
 ]
