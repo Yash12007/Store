@@ -472,7 +472,6 @@
                     routeAndRenderDetailedApplicationPage(targetMatchedEntityObjectRecord);
                 }
             }
-            document.getElementById("review-button").addEventListener("click", invokeReviewCollector);
         });
 
         // Safe Intercept Browser Back / Forward Hardware Keys Action Loops States Transitions
@@ -559,7 +558,7 @@
                     <div class="p-4 text-center rounded border" style="background: rgba(255,255,255,0.01); border-style: dashed !important; border-color: var(--border-line);">
                         <p class="text-muted m-0" style="font-size: 0.9rem;">No public structural feedback submitted for this item yet.</p>
                         <p class="text-muted small mt-1 mb-3">Reviews collected here help calibrate product evaluation scores inside Google Merchant Center.</p>
-                        <button id="review-button" class="btn btn-primary btn-sm px-4" style="font-size: 0.85rem; font-weight: 600; border-radius: 4px;">
+                        <button id="review-button" onclick="invokeReviewCollector()" class="btn btn-primary btn-sm px-4" style="font-size: 0.85rem; font-weight: 600; border-radius: 4px;">
                             Be the First to Review ⭐
                         </button>
                     </div>
