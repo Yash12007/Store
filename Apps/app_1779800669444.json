@@ -1,0 +1,16 @@
+{
+  "id": "app_1779800669444",
+  "Name": "Test App",
+  "DN": "https://github.com/Yash12007/Sera/releases/download/v3.0/SERA_ANTIVIRUS_3.0.exe",
+  "createdAt": 1779800669444,
+  "scan": {
+    "safe": true,
+    "score": 92,
+    "checks": {
+      "https": true,
+      "reachable": true,
+      "sizeValid": true
+    }
+  },
+  "Publisher": "Yash12007"
+}
