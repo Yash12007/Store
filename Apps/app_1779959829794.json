@@ -1,0 +1,19 @@
+{
+  "id": "app_1779959829794",
+  "Name": "Sera Antivirus",
+  "DN": "https://github.com/Yash12007/Sera/releases/download/v3.0/SERA_ANTIVIRUS_3.0.exe",
+  "createdAt": 1779959829794,
+  "scan": {
+    "safe": true,
+    "score": 92,
+    "checks": {
+      "https": true,
+      "reachable": true,
+      "sizeValid": true
+    }
+  },
+  "Publisher": "Yash12007",
+  "PublisherEmail": "info@yash12007.com",
+  "PublisherLogo": "https://yash12007.com/192x192.png",
+  "description": "Antivirus and Security software"
+}
