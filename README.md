@@ -31,5 +31,5 @@ This is a modern web-based software store developed by [Yash12007](https://www.y
 ```bash
 .
 ├── index.html           # Main HTML file containing store UI and scripts
-├── products.json        # Product database (array of product objects)
+├── https://shop.yash12007.com/products  # External product catalog endpoint
 ├── /assets              # Optional directory for images, icons, etc.
