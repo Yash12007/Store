@@ -1,0 +1,19 @@
+{
+  "id": "whirlsen",
+  "Name": "Whirlsen",
+  "DN": "https://play.google.com/store/apps/details?id=com.yash12007.whirlsen",
+  "createdAt": 1787232517366,
+  "scan": {
+    "safe": true,
+    "score": 100,
+    "checks": {
+      "https": true,
+      "reachable": true,
+      "sizeValid": true
+    }
+  },
+  "Publisher": "Yash12007",
+  "PublisherEmail": "info@yash12007.com",
+  "PublisherLogo": "https://yash12007.com/192x192.png",
+  "description": "Developer Tool - This app is a lightweight, efficient toolkit for developers who need quick access to HTTP request testing and data transformation utilities. Built with a focus on clarity and usability, it provides essential tools for inspecting network responses and working with encoded data without unnecessary complexity"
+}

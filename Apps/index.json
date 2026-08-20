@@ -4,5 +4,11 @@
     "Name": "Sera Antivirus",
     "price": 30,
     "logoURL": "https://yash12007.com/Sera/Sera.png"
+  },
+  {
+    "id": "whirlsen",
+    "Name": "Whirlsen",
+    "price": 0,
+    "logoURL": "https://play-lh.googleusercontent.com/cOn7sIYOIRzeIBjsEnVuTH_BofwoF_HXakFpLsq2yBGOhWka6nwO0nIgYqAXC_6UOpaOGeNLmCOcpYm8PNn-=w480-h960-rw"
   }
 ]
