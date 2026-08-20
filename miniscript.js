@@ -1,1 +1,14 @@
-async function getPublicDevApps(){fetch("https://store.yash12007.com/Apps/index.json").then(e=>e.json()).then(e=>{e.forEach(e=>{let t=e.id,s=e.Name,r=e.price,a=e.logoURL,i=document.createElement("a");i.className="PDABtn",i.innerHTML=`<img src="${a}" width="100" height="100" style="border-radius:1rem;"><b>${s}</b><p style=font-size:0.7rem>Free Download</p>`,i.href="?PID="+t,document.getElementById("publicApps").appendChild(i)})})}async function shareApp(e,t,s){if(navigator.share)try{await navigator.share({title:e,text:t,url:s}),console.log("Shared successfully")}catch(r){console.error("Share failed:",r)}else alert("Sharing not supported on this device")}getPublicDevApps();
+async function getPublicDevApps() { 
+    fetch("https://store.yash12007.com/Apps/index.json")
+    .then(e => e.json())
+    .then(e => { 
+        e.forEach(e => { 
+            let t = e.id, s = e.Name, r = e.price, a = e.logoURL, i = document.createElement("a"); 
+            i.className = "PDABtn", 
+            i.innerHTML = `<img src="${a}" width="100" height="100" style="border-radius:1rem;"><b>${s}</b><p style=font-size:0.7rem>Free Download</p>`, i.href = "?PID=" + t, 
+            document.getElementById("publicApps").appendChild(i);
+        }) 
+    })
+} 
+async function shareApp(e, t, s) { if (navigator.share) try { await navigator.share({ title: e, text: t, url: s }), console.log("Shared successfully") } catch (r) { console.error("Share failed:", r) } else alert("Sharing not supported on this device") }
+getPublicDevApps();
