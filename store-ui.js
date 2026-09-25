@@ -4,18 +4,35 @@
     const sort = document.getElementById('catalogSort');
     const count = document.getElementById('catalogCount');
     const tabs = [...document.querySelectorAll('.category-tab')];
-    const detailContainer = document.getElementById('detailedContainer');
-    const detailLogo = document.getElementById('detailAppLogo');
     const pidContainer = document.getElementById('PDADetailsContainer');
+    const themeToggle = document.getElementById('themeToggle');
+    const themeColor = document.querySelector('meta[name="theme-color"]');
+    const themeStorageKey = 'yash12007-store-theme';
     let activeFilter = 'all';
 
-    if (!viewer) return;
+    const applyTheme = (theme) => {
+        const normalizedTheme = theme === 'dark' ? 'dark' : 'light';
+        const isDark = normalizedTheme === 'dark';
 
-    const syncDetailBackdrop = () => {
-        const imageUrl = detailLogo?.getAttribute('src');
-        if (!detailContainer || !imageUrl) return;
-        detailContainer.style.backgroundImage = `linear-gradient(rgba(2, 5, 9, .88), rgba(2, 5, 9, .96)), url("${imageUrl}")`;
+        document.documentElement.dataset.theme = normalizedTheme;
+        document.documentElement.style.colorScheme = normalizedTheme;
+        themeColor?.setAttribute('content', isDark ? '#111318' : '#f7f8fa');
+        themeToggle?.setAttribute('aria-pressed', String(isDark));
     };
+
+    applyTheme(document.documentElement.dataset.theme);
+    themeToggle?.addEventListener('click', () => {
+        const nextTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        applyTheme(nextTheme);
+
+        try {
+            localStorage.setItem(themeStorageKey, nextTheme);
+        } catch {
+            // Theme still applies for the current page when storage is unavailable.
+        }
+    });
+
+    if (!viewer) return;
 
     const enhancePidDetails = () => {
         if (!pidContainer || !pidContainer.children.length) return;
@@ -89,16 +106,6 @@
     }));
 
     new MutationObserver(applyView).observe(viewer, { childList: true });
-    if (detailContainer) {
-        new MutationObserver(syncDetailBackdrop).observe(detailContainer, {
-            attributes: true,
-            attributeFilter: ['src'],
-            childList: true,
-            subtree: true
-        });
-        detailLogo?.addEventListener('load', syncDetailBackdrop);
-        syncDetailBackdrop();
-    }
     if (pidContainer) {
         new MutationObserver(enhancePidDetails).observe(pidContainer, { childList: true });
         enhancePidDetails();

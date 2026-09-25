@@ -1,4 +1,8 @@
 let applicationDatabaseArray = [];
+const PRODUCT_REVIEWS_API_URL = "https://shop.yash12007.com/api/reviews";
+let activeProductReviewsRequest = null;
+let activeProductReviewId = null;
+let productReviewsRenderToken = 0;
 async function fetchAndRenderAdBrandingBanner() {
   try {
     let e = await fetch("https://store.yash12007.com/store_ads.json");
@@ -186,7 +190,7 @@ function routeAndRenderDetailedApplicationPage(e) {
   (l ? (i.style.display = "block") : (i.style.display = "none"),
     updateApplicationJsonLdSchema(e),
     renderApplicationReviewsModule(e),
-    window.scrollTo({ top: 0, behavior: "smooth" }));
+    window.scrollTo(0, 0));
 }
 async function loadAppDetails(e) {
   try {
@@ -258,63 +262,366 @@ async function loadAppDetails(e) {
     console.error($);
   }
 }
-function renderApplicationReviewsModule(e) {
-  let t = document.getElementById("appReviewsContainer");
-  (t ||
-    (((t = document.createElement("div")).id = "appReviewsContainer"),
-    (t.className = "mt-5 pt-4 border-top"),
-    (t.style.color = "var(--text-main)"),
-    document.getElementById("detailedContainer").appendChild(t)),
-    (t.innerHTML = `
-        <h3 class="mb-4" style="font-size: 1.35rem; font-weight: 700; letter-spacing: -0.5px;">Customer Reviews & Ratings</h3>
-    `));
-  let r = e.Reviews || e.reviews;
-  if (Array.isArray(r) && r.length > 0) {
-    let a = document.createElement("div");
-    ((a.className = "d-flex flex-column gap-3"),
-      r.forEach((e) => {
-        let t = document.createElement("div");
-        ((t.className = "p-3 border rounded"),
-          (t.style.backgroundColor = "var(--navy-panel)"),
-          (t.style.borderColor = "var(--border-line)"));
-        let r = e.author || e.username || "Verified Buyer",
-          i = parseInt(e.rating) || 5,
-          n = e.comment || e.text || e,
-          o = e.date || e.timestamp || "",
-          l = o ? `<small class="text-muted ms-2">${o}</small>` : "";
-        ((t.innerHTML = `
-                <div class="d-flex align-items-center justify-content-between mb-2">
-                    <div>
-                        <strong style="font-size: 0.95rem; color: #ffffff;">${r}</strong>
-                        ${l}
-                    </div>
-                    <span style="color: #ffb700; font-weight: 700; font-size: 0.85rem;" aria-label="${i} out of 5 stars">
-                        ${"★".repeat(i)}${"☆".repeat(5 - i)}
-                    </span>
-                </div>
-                <p class="m-0 text-muted" style="font-size: 0.9rem; line-height: 1.5;">${n}</p>
-            `),
-          a.appendChild(t));
-      }),
-      t.appendChild(a));
-    let i = document.createElement("div");
-    ((i.className = "mt-4 text-start"),
-      (i.innerHTML = `
-            <button id="review-button" class="btn btn-outline-info btn-sm" style="font-size: 0.85rem; font-weight: 600; border-radius: 4px;">
-                Write an Ecosystem Review
-            </button>
-        `),
-      t.appendChild(i));
-  } else
-    t.innerHTML += `
-            <div class="p-4 text-center rounded border" style="background: rgba(255,255,255,0.01); border-style: dashed !important; border-color: var(--border-line);">
-                <p class="text-muted m-0" style="font-size: 0.9rem;">No public structural feedback submitted for this item yet.</p>
-                <p class="text-muted small mt-1 mb-3">Reviews collected here help calibrate product evaluation scores inside Google Merchant Center.</p>
-                <button id="review-button" onclick="invokeReviewCollector()" class="btn btn-primary btn-sm px-4" style="font-size: 0.85rem; font-weight: 600; border-radius: 4px;">
-                    Be the First to Review ⭐
-                </button>
-            </div>
-        `;
+function getProductReviewsContainer() {
+  let container = document.getElementById("appReviewsContainer");
+
+  if (!container) {
+    container = document.createElement("section");
+    container.id = "appReviewsContainer";
+    document.getElementById("detailedContainer")?.appendChild(container);
+  }
+
+  return container;
+}
+
+function normalizeProductReview(review) {
+  const numericRating = Number(review?.rating);
+
+  return {
+    reviewId: String(review?.review_id || review?.id || ""),
+    productId: String(review?.product_id || ""),
+    reviewerName: String(review?.reviewer_name || review?.author || "Customer"),
+    rating: Number.isFinite(numericRating)
+      ? Math.min(5, Math.max(1, Math.round(numericRating)))
+      : 0,
+    title: String(review?.title || ""),
+    content: String(review?.content || review?.comment || review?.text || ""),
+    createdAt: String(review?.created_at || review?.date || ""),
+  };
+}
+
+function formatProductReviewDate(value) {
+  if (!value) return "";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(date);
+}
+
+function createProductRatingStars(rating) {
+  const stars = document.createElement("span");
+  const normalizedRating = Math.min(5, Math.max(0, Math.round(rating || 0)));
+  stars.className = "review-stars";
+  stars.textContent = `${"★".repeat(normalizedRating)}${"☆".repeat(5 - normalizedRating)}`;
+  stars.setAttribute("role", "img");
+  stars.setAttribute("aria-label", `${normalizedRating} out of 5 stars`);
+  return stars;
+}
+
+function createProductReviewForm(productId, renderToken, onSubmitted) {
+  const form = document.createElement("form");
+  form.className = "product-review-form";
+  form.innerHTML = `
+    <h4>Write a review</h4>
+    <p>Share your experience with this product. Your review will appear in the public product rating summary.</p>
+    <div class="review-form-grid">
+      <label class="review-field">
+        <span>Your name</span>
+        <input class="review-input" name="reviewer_name" type="text" maxlength="80" autocomplete="name" required>
+      </label>
+      <label class="review-field">
+        <span>Rating</span>
+        <select class="review-input" name="rating" required>
+          <option value="5">5 - Excellent</option>
+          <option value="4">4 - Good</option>
+          <option value="3">3 - Average</option>
+          <option value="2">2 - Poor</option>
+          <option value="1">1 - Very poor</option>
+        </select>
+      </label>
+      <label class="review-field review-field-full">
+        <span>Review title <small>(optional)</small></span>
+        <input class="review-input" name="title" type="text" maxlength="120">
+      </label>
+      <label class="review-field review-field-full">
+        <span>Your review</span>
+        <textarea class="review-input" name="content" maxlength="2000" placeholder="What did you like or dislike about this product?" required></textarea>
+      </label>
+    </div>
+    <button class="review-submit" type="submit">Submit review</button>
+    <p class="review-status" role="status" aria-live="polite"></p>
+  `;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const submitButton = form.querySelector(".review-submit");
+    const status = form.querySelector(".review-status");
+    const formData = new FormData(form);
+    const payload = {
+      product_id: productId,
+      reviewer_name: String(formData.get("reviewer_name") || "").trim(),
+      rating: Number(formData.get("rating")),
+      title: String(formData.get("title") || "").trim(),
+      content: String(formData.get("content") || "").trim(),
+    };
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Submitting...";
+    status.className = "review-status";
+    status.textContent = "";
+
+    try {
+      const response = await fetch(PRODUCT_REVIEWS_API_URL, {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(
+          response.status >= 500
+            ? "The review service is temporarily unavailable. Please try again later."
+            : "The review could not be submitted. Please check your details and try again."
+        );
+      }
+      if (result.status !== true) {
+        throw new Error("The review could not be submitted. Please try again.");
+      }
+      if (
+        activeProductReviewId !== productId ||
+        productReviewsRenderToken !== renderToken
+      ) return;
+
+      form.reset();
+      onSubmitted(
+        normalizeProductReview(
+          result.review || {
+            ...payload,
+            created_at: new Date().toISOString(),
+          }
+        )
+      );
+    } catch (error) {
+      console.warn("Product review submission failed:", error);
+      if (
+        activeProductReviewId !== productId ||
+        productReviewsRenderToken !== renderToken
+      ) return;
+      status.className = "review-status is-error";
+      status.textContent = "The review could not be submitted. Please try again.";
+      submitButton.disabled = false;
+      submitButton.textContent = "Submit review";
+    }
+  });
+
+  return form;
+}
+
+function createProductReviewItem(review) {
+  const item = document.createElement("article");
+  item.className = "review-item";
+  item.setAttribute("role", "listitem");
+
+  const header = document.createElement("div");
+  header.className = "review-item-header";
+
+  const author = document.createElement("div");
+  author.className = "review-item-author";
+  const reviewerName = document.createElement("strong");
+  reviewerName.textContent = review.reviewerName;
+  author.appendChild(reviewerName);
+
+  const reviewDate = formatProductReviewDate(review.createdAt);
+  if (reviewDate) {
+    const date = document.createElement("span");
+    date.className = "review-date";
+    date.textContent = reviewDate;
+    author.appendChild(date);
+  }
+
+  header.append(author, createProductRatingStars(review.rating));
+  item.appendChild(header);
+
+  if (review.title) {
+    const title = document.createElement("h5");
+    title.textContent = review.title;
+    item.appendChild(title);
+  }
+
+  const content = document.createElement("p");
+  content.textContent = review.content || "No written comment was provided.";
+  item.appendChild(content);
+
+  return item;
+}
+
+function renderProductReviewPanel(
+  container,
+  product,
+  reviews,
+  notice = "",
+  renderToken = ++productReviewsRenderToken
+) {
+  const normalizedReviews = reviews
+    .map(normalizeProductReview)
+    .filter((review) => review.rating > 0 && review.content);
+  const ratingTotal = normalizedReviews.reduce((total, review) => total + review.rating, 0);
+  const averageRating = normalizedReviews.length
+    ? (ratingTotal / normalizedReviews.length).toFixed(1)
+    : "New";
+  const reviewLabel = normalizedReviews.length === 1 ? "review" : "reviews";
+
+  container.replaceChildren();
+  container.setAttribute("aria-busy", "false");
+
+  const header = document.createElement("div");
+  header.className = "review-section-header";
+  const title = document.createElement("h3");
+  title.textContent = "Product reviews & ratings";
+  const subtitle = document.createElement("p");
+  subtitle.textContent = `Ratings and customer feedback for ${product.Name || product.name || "this product"}.`;
+  header.append(title, subtitle);
+  container.appendChild(header);
+
+  if (notice) {
+    const noticeElement = document.createElement("p");
+    noticeElement.className = "review-status is-success";
+    noticeElement.setAttribute("role", "status");
+    noticeElement.textContent = notice;
+    container.appendChild(noticeElement);
+  }
+
+  const summary = document.createElement("div");
+  summary.className = "review-summary";
+  const average = document.createElement("strong");
+  average.className = "review-average";
+  average.textContent = averageRating;
+  const summaryCopy = document.createElement("div");
+  summaryCopy.className = "review-summary-copy";
+  const count = document.createElement("small");
+  count.textContent = normalizedReviews.length
+    ? `Based on ${normalizedReviews.length} ${reviewLabel}`
+    : "No ratings submitted yet";
+  summaryCopy.append(createProductRatingStars(Number(averageRating) || 0), count);
+  summary.append(average, summaryCopy);
+  container.appendChild(summary);
+
+  const layout = document.createElement("div");
+  layout.className = "review-layout";
+  const list = document.createElement("div");
+  list.className = "review-list";
+  list.setAttribute("role", "list");
+
+  if (normalizedReviews.length) {
+    normalizedReviews.forEach((review) => {
+      list.appendChild(createProductReviewItem(review));
+    });
+  } else {
+    const emptyState = document.createElement("p");
+    emptyState.className = "review-empty";
+    emptyState.textContent = "Be the first to share a rating and written review for this product.";
+    list.appendChild(emptyState);
+  }
+
+  layout.append(
+    createProductReviewForm(
+      String(product.ID || product.id || "").trim(),
+      renderToken,
+      (newReview) => {
+        const currentReviews = [
+          newReview,
+          ...reviews.filter(
+            (review) => String(review.review_id || review.id || "") !== newReview.reviewId
+          ),
+        ];
+        renderProductReviewPanel(
+          container,
+          product,
+          currentReviews,
+          "Thank you. Your review was submitted successfully."
+        );
+      }
+    ),
+    list
+  );
+  container.appendChild(layout);
+}
+
+function renderProductReviewLoadError(container, product) {
+  container.replaceChildren();
+  container.setAttribute("aria-busy", "false");
+  container.innerHTML = `
+    <div class="review-section-header">
+      <h3>Product reviews & ratings</h3>
+      <p>Customer feedback for this product.</p>
+    </div>
+    <p class="review-error">Reviews are temporarily unavailable. Please try again.</p>
+  `;
+
+  const retryButton = document.createElement("button");
+  retryButton.className = "review-submit";
+  retryButton.type = "button";
+  retryButton.textContent = "Try again";
+  retryButton.addEventListener("click", () => renderApplicationReviewsModule(product));
+  container.appendChild(retryButton);
+}
+
+async function renderApplicationReviewsModule(product) {
+  const container = getProductReviewsContainer();
+  if (!container) return;
+
+  const renderToken = ++productReviewsRenderToken;
+  const productId = String(product.ID || product.id || "").trim();
+  if (!productId) {
+    activeProductReviewId = null;
+    activeProductReviewsRequest?.abort();
+    renderProductReviewLoadError(container, product);
+    return;
+  }
+
+  activeProductReviewId = productId;
+  activeProductReviewsRequest?.abort();
+  const requestController = new AbortController();
+  activeProductReviewsRequest = requestController;
+  container.setAttribute("aria-busy", "true");
+  container.innerHTML = '<p class="review-loading">Loading product reviews...</p>';
+
+  try {
+    const response = await fetch(
+      `${PRODUCT_REVIEWS_API_URL}?product_id=${encodeURIComponent(productId)}`,
+      {
+        headers: { Accept: "application/json" },
+        cache: "no-store",
+        signal: requestController.signal,
+      }
+    );
+    const result = await response.json().catch(() => ({}));
+
+    if (!response.ok || result.status !== true || !Array.isArray(result.reviews)) {
+      throw new Error(result.message || "The product reviews could not be loaded.");
+    }
+
+    if (
+      activeProductReviewsRequest === requestController &&
+      productReviewsRenderToken === renderToken
+    ) {
+      renderProductReviewPanel(container, product, result.reviews, "", renderToken);
+    }
+  } catch (error) {
+    if (error.name === "AbortError") return;
+    console.warn("Product reviews could not be loaded:", error);
+    if (
+      activeProductReviewsRequest === requestController &&
+      productReviewsRenderToken === renderToken
+    ) {
+      renderProductReviewLoadError(container, product);
+    }
+  } finally {
+    if (activeProductReviewsRequest === requestController) {
+      activeProductReviewsRequest = null;
+    }
+  }
 }
 function updateApplicationJsonLdSchema(e) {
   let t = document.getElementById("yash12007JsonLdSchema");
@@ -351,41 +658,7 @@ function updateApplicationJsonLdSchema(e) {
     (t.text = JSON.stringify(l)),
     document.head.appendChild(t));
 }
-function invokeReviewCollector() {
-  getCustomerReviews(prompt("Enter your email for feedback"));
-}
-async function getCustomerReviews(e) {
-  let t,
-    r,
-    a = Date.now().toString(36) + Math.random().toString(36).slice(2),
-    i = new Date(Date.now() + 432e6).toISOString().slice(0, 10);
-  try {
-    let n = await fetch("https://ipinfo.io/country");
-    if (!n.ok) {
-      let o = await n.text();
-      throw Error(
-        `Failed to fetch country: ${n.status} ${n.statusText} - ${o}`,
-      );
-    }
-    t = (r = await n.text()).replace("\n", "");
-  } catch (l) {
-    (console.error("Error fetching country:", l), (t = "US"));
-  } finally {
-    ((window.renderOptIn = function () {
-      window.gapi.load("surveyoptin", function () {
-        window.gapi.surveyoptin.render({
-          merchant_id: 5587645429,
-          order_id: a,
-          email: e,
-          delivery_country: t,
-          estimated_delivery_date: i,
-        });
-      });
-    }),
-      window.renderOptIn());
-  }
-}
-(document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   fetchAndRenderAdBrandingBanner();
   let e = document.getElementById("viewer");
   if (!e) return;
@@ -424,133 +697,18 @@ async function getCustomerReviews(e) {
     let n = t.find((e) => e.ID === a);
     n && routeAndRenderDetailedApplicationPage(n);
   }
-}),
-  window.addEventListener("popstate", (e) => {
-    if (e.state && e.state.appID) {
-      let t = applicationDatabaseArray.find((t) => t.ID === e.state.appID);
-      t && routeAndRenderDetailedApplicationPage(t);
-    } else
-      ((document.getElementById("detailedContainer").style.display = "none"),
-        (document.getElementById("section").style.display = "block"),
-        (document.getElementById("heroBannerBlock").style.display = "block"));
-  }),
-  (window.prompt = function (e, t = "") {
-    return new Promise((r) => {
-      let a = document.getElementById("yash12007-custom-prompt");
-      a && a.remove();
-      let i = document.createElement("div");
-      ((i.id = "yash12007-custom-prompt"),
-        (i.style.cssText = `
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: rgba(5, 8, 13, 0.85);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 20000;
-            opacity: 0;
-            transition: opacity 0.2s ease-in-out;
-        `));
-      let n = document.createElement("div");
-      n.style.cssText = `
-            background: #111a24;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 8px;
-            padding: 24px;
-            width: 90%;
-            max-width: 420px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-            transform: scale(0.95);
-            transition: transform 0.2s ease-in-out;
-        `;
-      let o = e.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-      ((n.innerHTML = `
-            <div style="font-size: 1rem; font-weight: 600; color: #ffffff; margin-bottom: 14px; line-height: 1.4;">
-                ${o}
-            </div>
-            <div style="margin-bottom: 20px;">
-                <input type="text" id="yash12007-prompt-input" value="${t}" style="
-                    width: 100%;
-                    height: 42px;
-                    background: #090e17;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    border-radius: 4px;
-                    color: #f3f4f6;
-                    padding: 0 14px;
-                    font-size: 0.95rem;
-                    outline: none;
-                    box-sizing: border-box;
-                    transition: border-color 0.15s ease;
-                " />
-            </div>
-            <div style="display: flex; justify-content: flex-end; gap: 12px;">
-                <button id="yash12007-prompt-cancel" style="
-                    background: transparent;
-                    color: #9ca3af;
-                    border: 1px solid rgba(255, 255, 255, 0.08);
-                    padding: 8px 18px;
-                    font-size: 0.88rem;
-                    font-weight: 600;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    transition: background-color 0.15s ease, color 0.15s ease;
-                ">Cancel</button>
-                <button id="yash12007-prompt-confirm" style="
-                    background: #0078d4;
-                    color: #ffffff;
-                    border: none;
-                    padding: 8px 18px;
-                    font-size: 0.88rem;
-                    font-weight: 600;
-                    border-radius: 4px;
-                    cursor: pointer;
-                    transition: background-color 0.15s ease;
-                ">Confirm</button>
-            </div>
-        `),
-        i.appendChild(n),
-        document.body.appendChild(i));
-      let l = document.getElementById("yash12007-prompt-input"),
-        s = document.getElementById("yash12007-prompt-cancel"),
-        d = document.getElementById("yash12007-prompt-confirm");
-      (l.focus(),
-        l.select(),
-        (l.onfocus = () => (l.style.borderColor = "#0078d4")),
-        (l.onblur = () => (l.style.borderColor = "rgba(255, 255, 255, 0.08)")),
-        (s.onmouseover = () => {
-          ((s.style.backgroundColor = "rgba(255, 255, 255, 0.02)"),
-            (s.style.color = "#ffffff"));
-        }),
-        (s.onmouseout = () => {
-          ((s.style.backgroundColor = "transparent"),
-            (s.style.color = "#9ca3af"));
-        }),
-        (d.onmouseover = () => (d.style.backgroundColor = "#0066ff")),
-        (d.onmouseout = () => (d.style.backgroundColor = "#0078d4")));
-      let c = (e) => {
-        ((i.style.opacity = "0"),
-          (n.style.transform = "scale(0.95)"),
-          setTimeout(() => {
-            (i.remove(), r(e));
-          }, 200));
-      };
-      ((d.onclick = () => c(l.value)),
-        (s.onclick = () => c(null)),
-        (i.onclick = (e) => {
-          e.target === i && c(null);
-        }),
-        (l.onkeydown = (e) => {
-          "Enter" === e.key
-            ? (e.preventDefault(), c(l.value))
-            : "Escape" === e.key && (e.preventDefault(), c(null));
-        }),
-        requestAnimationFrame(() => {
-          ((i.style.opacity = "1"), (n.style.transform = "scale(1)"));
-        }));
-    });
-  }));
+});
+
+window.addEventListener("popstate", (e) => {
+  if (e.state && e.state.appID) {
+    let t = applicationDatabaseArray.find((t) => t.ID === e.state.appID);
+    t && routeAndRenderDetailedApplicationPage(t);
+  } else {
+    activeProductReviewId = null;
+    productReviewsRenderToken += 1;
+    activeProductReviewsRequest?.abort();
+    ((document.getElementById("detailedContainer").style.display = "none"),
+      (document.getElementById("section").style.display = "block"),
+      (document.getElementById("heroBannerBlock").style.display = "block"));
+  }
+});
